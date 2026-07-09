@@ -5,9 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-dev \
     && rm -rf /var/lib/apt/lists/*
 COPY Gemfile Gemfile.lock ./
-RUN bundle config set --local deployment 'true' && \
-    bundle config set --local without 'development test' && \
-    bundle install --jobs 4
+RUN bundle install --jobs 4 --without development test
 
 FROM ruby:3.3.11-slim
 ENV RAILS_ENV=production \
@@ -18,7 +16,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-0 \
     && rm -rf /var/lib/apt/lists/* && \
     groupadd -r rails && useradd -r -g rails -u 1001 rails
-COPY --from=builder /app/.bundle ./.bundle
 COPY --from=builder /app/vendor ./vendor
 COPY . .
 RUN mkdir -p tmp log storage && \
